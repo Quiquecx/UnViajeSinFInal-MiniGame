@@ -2,11 +2,19 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Un Viaje con Jesús - La Ruta del Gran Viaje</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+    <div id="aviso-orientacion">
+        <div class="aviso-contenido">
+            <span>🔄</span>
+            <h2>¡Gira tu pantalla!</h2>
+            <p>Para disfrutar de "La Ruta del Gran Viaje", por favor coloca tu celular de forma horizontal.</p>
+        </div>
+    </div>
 
     <div id="game-container">
         
@@ -35,32 +43,46 @@
         <div id="modal-instrucciones" class="modal hidden">
             <div class="modal-contenido">
                 <h2>📜 Instrucciones del Viaje</h2>
-                <div class="modal-body">
+                <div class="modal-body" style="text-align: left; margin: 15px 0;">
                     <p><strong>1. Lanza el dado:</strong> Avanza por la carretera interactiva.</p>
                     <p><strong>2. Supera retos:</strong> Responde preguntas en los "Puntos de Encuentro" o ayuda en "SOS Rescate".</p>
                     <p><strong>3. Gana Stickers:</strong> Reúne signos de fe como la Eucaristía, el pan y el vino.</p>
-                    <p><strong>4. Meta:</strong> ¡Llega al destino <strong>AMOR</strong> para completar tu álbum! </p>
+                    <p><strong>4. Meta:</strong> ¡Llega al destino <strong>AMOR</strong> para completar el viaje!</p>
                 </div>
-                <button id="btn-cerrar-instrucciones" class="btn-primary" style="margin-top:20px;">¡ENTENDIDO!</button>
+                <button id="btn-cerrar-instrucciones" class="btn-primary">¡ENTENDIDO!</button>
             </div>
         </div>
 
         <div id="contenedor-tablero" class="screen hidden">
+            <div id="consola-mensajes">¡Preparen sus mochilas! Estamos por salir...</div>
+
             <canvas id="tablero-canvas" width="900" height="600"></canvas>
             
             <div id="interfaz-flotante">
                 <div class="hud-superior">
-                    <div id="marcador-stickers">Stickers: 0</div>
+                    <div id="marcador-stickers">✨ Stickers: 0</div>
+                    <button id="btn-pausa" class="btn-circular">⏸️</button>
                 </div>
-                <button id="btn-lanzar-dado" class="btn-dado">🎲</button>
+                
+                <div class="controles-inferiores">
+                    <button id="btn-lanzar-dado" class="btn-dado">🎲</button>
+                </div>
             </div>
         </div>
 
         <div id="modal-retos" class="modal hidden">
             <div class="modal-contenido">
-                <div id="reto-titulo"></div>
-                <div id="reto-descripcion" class="modal-body"></div>
+                <h2 id="reto-titulo">📍 Punto de Encuentro</h2>
+                <div id="reto-descripcion"></div>
                 <div id="reto-opciones" class="opciones-grid"></div>
+            </div>
+        </div>
+
+        <div id="modal-pausa" class="modal hidden">
+            <div class="modal-contenido">
+                <h2>🚌 Parada de Descanso</h2>
+                <p>El viaje se ha detenido un momento. ¿Listo para seguir?</p>
+                <button id="btn-reanudar" class="btn-primary" style="margin-top: 20px;">REANUDAR VIAJE</button>
             </div>
         </div>
 
@@ -71,6 +93,14 @@
         
         document.addEventListener('DOMContentLoaded', () => {
             iniciarRutaGranViaje();
+
+            // Lógica extra para el botón reanudar del modal de pausa
+            const btnReanudar = document.getElementById('btn-reanudar');
+            if(btnReanudar) {
+                btnReanudar.onclick = () => {
+                    document.getElementById('btn-pausa').click();
+                };
+            }
         });
     </script>
 </body>

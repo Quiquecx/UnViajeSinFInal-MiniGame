@@ -52,13 +52,47 @@ body {
 .hidden { display: none !important; }
 
 /* ==========================================================
-   PANTALLA DE INICIO
+   SISTEMA MÓVIL (BLOQUEO VERTICAL)
+   ========================================================== */
+#aviso-orientacion {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--azul-cielo);
+    z-index: 9999;
+    color: white;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 20px;
+}
+
+@media (max-width: 900px) and (orientation: portrait) {
+    #aviso-orientacion { display: flex; }
+}
+
+#aviso-orientacion span {
+    font-size: 60px;
+    margin-bottom: 20px;
+    animation: rotarIcono 2s infinite ease-in-out;
+}
+
+@keyframes rotarIcono {
+    0% { transform: rotate(0deg); }
+    50% { transform: rotate(-90deg); }
+    100% { transform: rotate(0deg); }
+}
+
+/* ==========================================================
+   PANTALLA DE INICIO (CENTRADO DEL CAMIÓN)
    ========================================================== */
 .capa { position: absolute; }
 
 .capa.pasto {
     bottom: -110px;
-    left: -50px;
+    left: 50%;
+    transform: translateX(-50%);
     width: 110%;
     height: 350px;
     background-color: var(--verde-pasto);
@@ -69,8 +103,10 @@ body {
 .capa.personajes-portada {
     bottom: 115px;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%); /* Centrado exacto del camión */
     z-index: 5;
+    display: flex;
+    justify-content: center;
 }
 
 #bus-portada {
@@ -84,9 +120,10 @@ body {
     z-index: 10;
     margin-top: 40px;
     text-align: center;
+    width: 100%;
 }
 
-.logo-contenedor { width: 520px; margin-bottom: 15px; }
+.logo-contenedor { width: 520px; margin: 0 auto 15px auto; }
 #titulo-juego { width: 100%; filter: drop-shadow(0 0 25px white); animation: flotar 4s ease-in-out infinite; }
 
 .botones-inicio {
@@ -110,16 +147,39 @@ body {
     display: block;
 }
 
+#consola-mensajes {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 45%; 
+    background: rgba(255, 255, 255, 0.4); 
+    backdrop-filter: blur(10px); 
+    -webkit-backdrop-filter: blur(10px);
+    padding: 10px 20px;
+    border-radius: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    color: #1a365d;
+    font-size: 1rem;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    z-index: 45;
+}
+
 #interfaz-flotante {
     position: absolute;
     top: 20px;
     right: 20px;
+    bottom: 20px;
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
     align-items: flex-end;
-    gap: 15px;
     z-index: 30;
+    pointer-events: none;
 }
+
+.hud-superior, .controles-inferiores { pointer-events: auto; }
 
 .hud-superior {
     background: rgba(255, 255, 255, 0.9);
@@ -134,19 +194,22 @@ body {
 .btn-dado {
     width: 90px;
     height: 90px;
-    font-size: 45px;
+    font-size: 3rem;
     background: white;
     border: 5px solid var(--amarillo-bus);
     border-radius: 20px;
     cursor: pointer;
     box-shadow: 0 8px 0 #cc9900;
-    transition: 0.1s;
+    transition: transform 0.2s;
 }
 
-.btn-dado:active { transform: translateY(4px); box-shadow: 0 4px 0 #cc9900; }
+.btn-dado:active { 
+    transform: scale(0.8) rotate(20deg); 
+    box-shadow: 0 4px 0 #cc9900; 
+}
 
 /* ==========================================================
-   BOTONES GENERALES
+   BOTONES GENERALES (SIN CAMBIOS)
    ========================================================== */
 .btn-primary {
     background-color: var(--amarillo-bus);
@@ -173,13 +236,15 @@ body {
 }
 
 /* ==========================================================
-   MODALES Y RETOS
+   MODALES Y RETOS (CENTRADO DE TRIVIAS)
    ========================================================== */
 .modal {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.8);
-    display: flex; justify-content: center; align-items: center;
+    display: flex; 
+    justify-content: center; 
+    align-items: center; /* Centrado vertical de la trivia */
     z-index: 100;
     backdrop-filter: blur(5px);
 }
@@ -193,6 +258,9 @@ body {
     border: 10px solid var(--azul-cielo);
     text-align: center;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centrado horizontal de contenido trivia */
 }
 
 .opciones-grid {
@@ -200,6 +268,7 @@ body {
     grid-template-columns: 1fr 1fr;
     gap: 15px;
     margin-top: 20px;
+    width: 100%;
 }
 
 .btn-opcion {
@@ -234,18 +303,11 @@ body {
 }
 
 @keyframes vibrarBus {
-    0%, 100% { transform: scale(1) rotate(0deg) translateX(-50%); }
-    50% { transform: scale(1.02) rotate(1deg) translateX(-50%); }
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    50% { transform: scale(1.02) rotate(1deg); }
 }
 
 @keyframes flotar {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-20px); }
-}
-.btn-dado {
-    font-size: 3rem;
-    transition: transform 0.2s;
-}
-.btn-dado:active {
-    transform: scale(0.8) rotate(20deg);
 }
