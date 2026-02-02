@@ -1,0 +1,251 @@
+/* ==========================================================
+   CONFIGURACIÓN GENERAL Y VARIABLES
+   ========================================================== */
+   :root {
+    --azul-cielo: #0099de;
+    --verde-pasto: #8bc53f;
+    --amarillo-bus: #ffcc00;
+    --rojo-sos: #ff4b2b;
+    --fuente-principal: 'Arial Rounded MT Bold', 'Helvetica', sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #1a1a1a; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: var(--fuente-principal);
+    overflow: hidden;
+}
+
+/* MARCO RÍGIDO (900x600) */
+#game-container {
+    width: 900px;
+    height: 600px;
+    position: relative;
+    overflow: hidden;
+    background-color: var(--azul-cielo);
+    border: 8px solid #333;
+    border-radius: 24px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+}
+
+/* ADAPTABILIDAD POR ESCALA */
+@media (max-width: 950px) { #game-container { transform: scale(0.8); } }
+@media (max-width: 750px) { #game-container { transform: scale(0.6); } }
+@media (max-width: 550px) { #game-container { transform: scale(0.45); } }
+
+.screen {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.hidden { display: none !important; }
+
+/* ==========================================================
+   PANTALLA DE INICIO
+   ========================================================== */
+.capa { position: absolute; }
+
+.capa.pasto {
+    bottom: -110px;
+    left: -50px;
+    width: 110%;
+    height: 350px;
+    background-color: var(--verde-pasto);
+    border-radius: 50% 50% 0 0;
+    z-index: 1;
+}
+
+.capa.personajes-portada {
+    bottom: 115px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+}
+
+#bus-portada {
+    width: 320px;
+    filter: drop-shadow(0 15px 15px rgba(0,0,0,0.25));
+    animation: vibrarBus 3s ease-in-out infinite;
+}
+
+.portada-contenido {
+    position: relative;
+    z-index: 10;
+    margin-top: 40px;
+    text-align: center;
+}
+
+.logo-contenedor { width: 520px; margin-bottom: 15px; }
+#titulo-juego { width: 100%; filter: drop-shadow(0 0 25px white); animation: flotar 4s ease-in-out infinite; }
+
+.botones-inicio {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 170px;
+}
+
+/* ==========================================================
+   INTERFAZ DEL JUEGO (TABLERO Y HUD)
+   ========================================================== */
+#contenedor-tablero {
+    background-color: #f0f0f0;
+    z-index: 20;
+}
+
+#tablero-canvas {
+    width: 900px;
+    height: 600px;
+    display: block;
+}
+
+#interfaz-flotante {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 15px;
+    z-index: 30;
+}
+
+.hud-superior {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px 20px;
+    border-radius: 30px;
+    border: 3px solid var(--azul-cielo);
+    font-weight: bold;
+    font-size: 18px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.btn-dado {
+    width: 90px;
+    height: 90px;
+    font-size: 45px;
+    background: white;
+    border: 5px solid var(--amarillo-bus);
+    border-radius: 20px;
+    cursor: pointer;
+    box-shadow: 0 8px 0 #cc9900;
+    transition: 0.1s;
+}
+
+.btn-dado:active { transform: translateY(4px); box-shadow: 0 4px 0 #cc9900; }
+
+/* ==========================================================
+   BOTONES GENERALES
+   ========================================================== */
+.btn-primary {
+    background-color: var(--amarillo-bus);
+    color: #333;
+    border: 3px solid white;
+    padding: 12px 35px;
+    font-size: 22px;
+    font-weight: 900;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 6px 0 #cc9900;
+}
+
+.btn-secondary {
+    background-color: white;
+    color: var(--azul-cielo);
+    border: none;
+    padding: 10px 25px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #ddd;
+}
+
+/* ==========================================================
+   MODALES Y RETOS
+   ========================================================== */
+.modal {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 100;
+    backdrop-filter: blur(5px);
+}
+
+.modal-contenido {
+    background: white;
+    width: 75%;
+    max-height: 85%;
+    padding: 30px;
+    border-radius: 40px;
+    border: 10px solid var(--azul-cielo);
+    text-align: center;
+    overflow-y: auto;
+}
+
+.opciones-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.btn-opcion {
+    background: #f8f8f8;
+    border: 3px solid #eee;
+    padding: 15px;
+    border-radius: 20px;
+    font-size: 18px;
+    font-family: var(--fuente-principal);
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-opcion:hover {
+    background: var(--amarillo-bus);
+    border-color: white;
+    transform: scale(1.03);
+}
+
+/* ==========================================================
+   EXTRAS Y ANIMACIONES
+   ========================================================== */
+.copyright {
+    position: absolute;
+    bottom: 15px;
+    width: 100%;
+    text-align: center;
+    color: white;
+    font-size: 12px;
+    text-shadow: 1px 1px 3px black;
+    z-index: 5;
+}
+
+@keyframes vibrarBus {
+    0%, 100% { transform: scale(1) rotate(0deg) translateX(-50%); }
+    50% { transform: scale(1.02) rotate(1deg) translateX(-50%); }
+}
+
+@keyframes flotar {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+.btn-dado {
+    font-size: 3rem;
+    transition: transform 0.2s;
+}
+.btn-dado:active {
+    transform: scale(0.8) rotate(20deg);
+}

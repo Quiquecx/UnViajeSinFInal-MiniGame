@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Un Viaje con Jesús - La Ruta del Gran Viaje</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div id="game-container">
+        
+        <div id="pantalla-inicio" class="screen">
+            <div class="capa cielo"></div>
+            <div class="capa pasto"></div>
+            
+            <div class="capa personajes-portada">
+                <img src="src/imgs/Camion-02.png" id="bus-portada" alt="Bus Escolar">
+            </div>
+            
+            <div class="portada-contenido">
+                <div class="logo-contenedor">
+                    <img src="src/imgs/Titulo_Escolar_Renovado-Primaria-Libro_03.png" id="titulo-juego" alt="Un viaje con Jesús">
+                </div>
+                
+                <div class="botones-inicio">
+                    <button id="btn-iniciar" class="btn-primary">¡VAMOS!</button>
+                    <button id="btn-instrucciones" class="btn-secondary">¿CÓMO JUGAR?</button>
+                </div>
+            </div>
+            
+            <p class="copyright">© Creaciones Casa del Catequista - Todos los derechos reservados</p>
+        </div>
+
+        <div id="modal-instrucciones" class="modal hidden">
+            <div class="modal-contenido">
+                <h2>📜 Instrucciones del Viaje</h2>
+                <div class="modal-body">
+                    <p><strong>1. Lanza el dado:</strong> Avanza por la carretera interactiva.</p>
+                    <p><strong>2. Supera retos:</strong> Responde preguntas en los "Puntos de Encuentro" o ayuda en "SOS Rescate".</p>
+                    <p><strong>3. Gana Stickers:</strong> Reúne signos de fe como la Eucaristía, el pan y el vino.</p>
+                    <p><strong>4. Meta:</strong> ¡Llega al destino <strong>AMOR</strong> para completar tu álbum! </p>
+                </div>
+                <button id="btn-cerrar-instrucciones" class="btn-primary" style="margin-top:20px;">¡ENTENDIDO!</button>
+            </div>
+        </div>
+
+        <div id="contenedor-tablero" class="screen hidden">
+            <canvas id="tablero-canvas" width="900" height="600"></canvas>
+            
+            <div id="interfaz-flotante">
+                <div class="hud-superior">
+                    <div id="marcador-stickers">Stickers: 0</div>
+                </div>
+                <button id="btn-lanzar-dado" class="btn-dado">🎲</button>
+            </div>
+        </div>
+
+        <div id="modal-retos" class="modal hidden">
+            <div class="modal-contenido">
+                <div id="reto-titulo"></div>
+                <div id="reto-descripcion" class="modal-body"></div>
+                <div id="reto-opciones" class="opciones-grid"></div>
+            </div>
+        </div>
+
+    </div> 
+
+    <script type="module">
+        import { iniciarRutaGranViaje } from './src/zona3.js';
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            iniciarRutaGranViaje();
+        });
+    </script>
+</body>
+</html>
