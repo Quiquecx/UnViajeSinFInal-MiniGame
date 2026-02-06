@@ -3,7 +3,7 @@ import { RETOS } from './datos.js';
 /* ==========================================================
    1. MOTOR GRÁFICO (TABLERO Y AUTOBÚS)
    ========================================================== */
-class TableroGrafico {
+   class TableroGrafico {
     constructor(canvasId) {
         this.canvas = document.getElementById(canvasId);
         this.ctx = this.canvas.getContext('2d');
@@ -12,18 +12,40 @@ class TableroGrafico {
         this.imgBus = new Image();
         this.imgBus.src = 'src/imgs/Camion-02.png';
         
-        // Coordenadas ajustadas para visibilidad (Eje Y máx 540)
         this.puntos = [
-            {x: 720, y: 200}, {x: 675, y: 235}, {x: 685, y: 80},  {x: 625, y: 45},
-            {x: 455, y: 95},  {x: 385, y: 110}, {x: 320, y: 100}, {x: 250, y: 75},
-            {x: 200, y: 65},  {x: 60, y: 215},  {x: 125, y: 290}, {x: 155, y: 455},
-            {x: 40, y: 540},  {x: 125, y: 540}, {x: 185, y: 540}, {x: 380, y: 540},
-            {x: 385, y: 540}, {x: 470, y: 540}, {x: 635, y: 540}, {x: 680, y: 540},
-            {x: 830, y: 540}, {x: 855, y: 465}, {x: 790, y: 465}, {x: 735, y: 540},
-            {x: 635, y: 540}, {x: 580, y: 475}, {x: 545, y: 365}, {x: 585, y: 230},
-            {x: 500, y: 200}, {x: 455, y: 345}
+            {x: 720, y: 200}, // Casilla 0: Salida 🚍
+            {x: 675, y: 235}, // Casilla 1: Carretera
+            {x: 685, y: 80},  // Casilla 2: Trivia 📍
+            {x: 625, y: 45},  // Casilla 3: Estación de Servicio ⛽
+            {x: 455, y: 95},  // Casilla 4: SOS Rescate ⛑️
+            {x: 385, y: 110}, // Casilla 5: Bonus ⭐
+            {x: 320, y: 100}, // Casilla 6: Carretera
+            {x: 250, y: 75},  // Casilla 7: Trivia 📍
+            {x: 200, y: 65},  // Casilla 8: Curva Peligrosa ⚠️
+            {x: 60, y: 215},  // Casilla 9: Carretera
+            {x: 125, y: 290}, // Casilla 10: Signo Sacramental ⛪
+            {x: 155, y: 455}, // Casilla 11: SOS Rescate ⛑️
+            {x: 40, y: 540},  // Casilla 12: Bonus ⭐
+            {x: 125, y: 540}, // Casilla 13: Carretera
+            {x: 185, y: 540}, // Casilla 14: Trivia 📍
+            {x: 380, y: 540}, // Casilla 15: Curva Peligrosa ⚠️
+            {x: 385, y: 540}, // Casilla 16: Estación de Servicio ⛽
+            {x: 470, y: 540}, // Casilla 17: Carretera
+            {x: 635, y: 540}, // Casilla 18: Signo Sacramental ⛪
+            {x: 680, y: 540}, // Casilla 19: SOS Rescate ⛑️
+            {x: 830, y: 540}, // Casilla 20: Bonus ⭐
+            {x: 855, y: 465}, // Casilla 21: Carretera
+            {x: 790, y: 465}, // Casilla 22: Trivia 📍
+            {x: 735, y: 540}, // Casilla 23: Estación de Servicio ⛽
+            {x: 635, y: 540}, // Casilla 24: Carretera
+            {x: 580, y: 475}, // Casilla 25: Curva Peligrosa ⚠️
+            {x: 545, y: 365}, // Casilla 26: Signo Sacramental ⛪
+            {x: 585, y: 230}, // Casilla 27: SOS Rescate ⛑️
+            {x: 500, y: 200}, // Casilla 28: Bonus ⭐
+            {x: 455, y: 345}  // Casilla 29: META 🏁
         ];
     }
+
 
     dibujar(pos) {
         this.ctx.clearRect(0, 0, 900, 600);
@@ -35,7 +57,6 @@ class TableroGrafico {
         const p = this.puntos[i] || this.puntos[this.puntos.length - 1];
 
         if (this.imgBus.complete && p) {
-            // Animación de rebote si no está pausado
             const bounce = pausado ? 0 : Math.sin(Date.now() / 200) * 5;
             this.ctx.drawImage(this.imgBus, p.x - 40, (p.y - 60) + bounce, 80, 80);
         }
@@ -53,20 +74,18 @@ let pausado = false;
 let stickers = 0;
 
 /* ==========================================================
-   3. INICIALIZACIÓN Y EVENTOS
+   3. INICIALIZACIÓN Y EVENTOS (MODO PRUEBA: DADO = 1)
    ========================================================== */
-export function iniciarRutaGranViaje() {
+   export function iniciarRutaGranViaje() {
     motor = new TableroGrafico('tablero-canvas');
 
-    // Botón Iniciar
     document.getElementById('btn-iniciar').onclick = () => {
         document.getElementById('pantalla-inicio').classList.add('hidden');
         document.getElementById('contenedor-tablero').classList.remove('hidden');
-        mostrarMensaje("¡Bienvenidos al Viaje! Lanza el dado para comenzar. 🚍");
+        mostrarMensaje("¡MODO PRUEBA ACTIVO! El dado siempre caerá en 1. 🚍");
         loop();
     };
 
-    // Botón Instrucciones
     document.getElementById('btn-instrucciones').onclick = () => {
         document.getElementById('modal-instrucciones').classList.remove('hidden');
     };
@@ -74,7 +93,6 @@ export function iniciarRutaGranViaje() {
         document.getElementById('modal-instrucciones').classList.add('hidden');
     };
 
-    // Botón Pausa
     const btnPausa = document.getElementById('btn-pausa');
     if (btnPausa) {
         btnPausa.onclick = () => {
@@ -83,7 +101,6 @@ export function iniciarRutaGranViaje() {
         };
     }
 
-    // Lógica del Dado Animado
     const btnDado = document.getElementById('btn-lanzar-dado');
     btnDado.onclick = () => {
         if (enMovimiento || pausado) return;
@@ -98,9 +115,13 @@ export function iniciarRutaGranViaje() {
             
             if (giros > 10) {
                 clearInterval(intervalo);
-                const valor = Math.floor(Math.random() * 6) + 1;
-                btnDado.innerText = caras[valor - 1];
-                mostrarMensaje(`¡Avanzas ${valor} casillas!`);
+                
+                // --- CAMBIO PARA PRUEBAS ---
+                const valor = 1; // Forzamos el avance de 1 en 1
+                // ---------------------------
+                
+                btnDado.innerText = caras[valor - 1]; // Mostrará ⚀
+                mostrarMensaje(`Prueba: Avanzas ${valor} casilla.`);
                 posActual = Math.min(posActual + valor, motor.puntos.length - 1);
             }
         }, 80);
@@ -120,7 +141,6 @@ function loop() {
                 verificarReto(Math.floor(posActual));
             }
         } else if (posVisual > posActual) {
-            // Lógica para retroceder (Curva Peligrosa)
             posVisual -= 0.1; 
             if (posVisual <= posActual) posVisual = posActual;
         }
@@ -140,13 +160,12 @@ function actualizarHUD() {
 }
 
 /* ==========================================================
-   5. SISTEMA DE RETOS Y MODALES
+   5. SISTEMA DE RETOS
    ========================================================== */
 function verificarReto(p) {
     if (p >= 29) return lanzarModal('META');
 
-    // Distribución de casillas según el documento
-    const c = {
+    const categorias = {
         trivia: [2, 7, 14, 22],
         sos: [4, 11, 19, 27],
         curva: [8, 15, 25],
@@ -155,14 +174,14 @@ function verificarReto(p) {
         estacion: [3, 16, 23]
     };
 
-    if (c.trivia.includes(p)) lanzarModal('TRIVIA');
-    else if (c.sos.includes(p)) lanzarModal('SOS');
-    else if (c.curva.includes(p)) lanzarModal('CURVA');
-    else if (c.bonus.includes(p)) lanzarModal('BONUS');
-    else if (c.iglesia.includes(p)) lanzarModal('IGLESIA');
-    else if (c.estacion.includes(p)) {
+    if (categorias.trivia.includes(p)) lanzarModal('TRIVIA');
+    else if (categorias.sos.includes(p)) lanzarModal('SOS');
+    else if (categorias.curva.includes(p)) lanzarModal('CURVA');
+    else if (categorias.bonus.includes(p)) lanzarModal('BONUS');
+    else if (categorias.iglesia.includes(p)) lanzarModal('IGLESIA');
+    else if (categorias.estacion.includes(p)) {
         mostrarMensaje("⛽ Estación de Servicio: ¡Carga energía de fe!");
-        lanzarModal('BONUS'); // Simplificado por ahora a Bonus
+        lanzarModal('ESTACION'); 
     }
 }
 
@@ -171,8 +190,10 @@ function lanzarModal(tipo) {
     const opciones = document.getElementById('reto-opciones');
     const titulo = document.getElementById('reto-titulo');
     const desc = document.getElementById('reto-descripcion');
+    const imgRef = document.getElementById('reto-imagen'); 
     
     opciones.innerHTML = "";
+    if (imgRef) imgRef.style.display = "none"; 
     modal.classList.remove('hidden');
 
     let item;
@@ -215,26 +236,41 @@ function lanzarModal(tipo) {
             crearBoton("¡Reclamar Sticker! ✨", true, true);
             break;
 
+        case 'ESTACION':
+            titulo.innerText = "⛽ Estación de Servicio";
+            desc.innerText = "¡Has llegado a un lugar para recargar tu fe! Haz una pausa y prepárate para continuar el viaje.";
+            crearBoton("¡Cargar Energía de Fe! ⚡", true, false);
+            break;
+
         case 'META':
             titulo.innerText = "🏁 ¡LLEGADA AL AMOR!";
-            desc.innerText = `¡Felicidades Viajero de la Fe!\nHas completado el camino con ${stickers} stickers.\n\nJesús te acompaña siempre.`;
+            desc.innerText = `¡Felicidades Viajero de la Fe!\nHas completado el camino con ${stickers} stickers.`;
             crearBoton("¡Recibir mi Diploma!", true, false, 0, true);
             break;
     }
 
+    if (item && item.imagen && imgRef) {
+        imgRef.src = item.imagen;
+        imgRef.style.display = "block";
+    }
+
+    // FUNCIÓN CREAR BOTÓN (DENTRO DE LANZAR MODAL)
     function crearBoton(texto, correcta, daSticker, penalizacion = 0, esMeta = false) {
         const btn = document.createElement('button');
         btn.className = "btn-opcion";
         btn.innerText = texto;
         btn.onclick = () => {
             if (esMeta) {
-                alert("🎖️ ¡Diploma Desbloqueado!\n\nCertificamos que has completado la Ruta del Gran Viaje.");
+                alert("🎖️ ¡Diploma Desbloqueado!");
                 location.reload();
                 return;
             }
 
             if (correcta) {
-                if (daSticker) { stickers++; actualizarHUD(); }
+                if (daSticker) { 
+                    stickers++; 
+                    actualizarHUD(); 
+                }
                 mostrarMensaje("¡Excelente! Respuesta correcta. ✨");
             } else if (penalizacion > 0) {
                 posActual = Math.max(0, posActual - penalizacion);
