@@ -9,8 +9,10 @@ class TableroGrafico {
         this.ctx = this.canvas.getContext('2d');
         this.imgMapa = new Image();
         this.imgMapa.src = 'src/imgs/Camino, juego L6.png';
-        this.imgBus = new Image();
-        this.imgBus.src = 'src/imgs/Camion-02.png';
+        this.imgBusAbierto = new Image();
+        this.imgBusAbierto.src = 'src/imgs/Camion-02.png';
+        this.imgBusCerrado = new Image();
+        this.imgBusCerrado.src = 'src/imgs/BusCerrado.png';
         
         this.puntos = [
             {x: 720, y: 200}, {x: 675, y: 235}, {x: 685, y: 80},  {x: 625, y: 45},  
@@ -29,17 +31,33 @@ class TableroGrafico {
         if (this.imgMapa.complete) {
             this.ctx.drawImage(this.imgMapa, 0, 0, 900, 600);
         }
+
         const i = Math.floor(pos);
         const p = this.puntos[i] || this.puntos[this.puntos.length - 1];
-        if (this.imgBus.complete && p) {
+        
+        const imgParaDibujar = (pos === 0) ? this.imgBusAbierto : this.imgBusCerrado;
+
+        if (imgParaDibujar.complete && p) {
             const bounce = pausado ? 0 : Math.sin(Date.now() / 200) * 5;
-            this.ctx.drawImage(this.imgBus, p.x - 40, (p.y - 60) + bounce, 80, 80);
+            
+            const sigPunto = this.puntos[i + 1] || p;
+            const mirandoIzquierda = sigPunto.x < p.x;
+
+            this.ctx.save();
+            if (mirandoIzquierda) {
+                this.ctx.translate(p.x, p.y);
+                this.ctx.scale(-1, 1);
+                this.ctx.drawImage(imgParaDibujar, -40, -60 + bounce, 80, 80);
+            } else {
+                this.ctx.drawImage(imgParaDibujar, p.x - 40, (p.y - 60) + bounce, 80, 80);
+            }
+            this.ctx.restore();
         }
     }
 }
 
 /* ==========================================================
-   2. VARIABLES DE ESTADO Y CONTROL DE REPETICIÓN
+   2. VARIABLES DE ESTADO
    ========================================================== */
 let posActual = 0;
 let posVisual = 0;
@@ -48,26 +66,16 @@ let enMovimiento = false;
 let pausado = false;
 let stickers = 0;
 
-// Objeto para controlar qué retos ya salieron
 const historialRetos = {
-    TRIVIA: [],
-    SOS: [],
-    CURVA: [],
-    BONUS: [],
-    IGLESIA: []
+    TRIVIA: [], SOS: [], CURVA: [], BONUS: [], IGLESIA: []
 };
 
-// Función para obtener un item aleatorio que no se haya usado
 function obtenerItemNoRepetido(categoria, listaOriginal) {
-    // Si la lista de disponibles está vacía, la reiniciamos
     if (historialRetos[categoria].length === 0) {
         historialRetos[categoria] = listaOriginal.map((_, index) => index);
     }
-    
-    // Elegimos un índice al azar de los que quedan disponibles
     const randomIndexInAvailable = Math.floor(Math.random() * historialRetos[categoria].length);
     const itemIndex = historialRetos[categoria].splice(randomIndexInAvailable, 1)[0];
-    
     return listaOriginal[itemIndex];
 }
 
@@ -80,7 +88,8 @@ export function iniciarRutaGranViaje() {
     document.getElementById('btn-iniciar').onclick = () => {
         document.getElementById('pantalla-inicio').classList.add('hidden');
         document.getElementById('contenedor-tablero').classList.remove('hidden');
-        mostrarMensaje("¡MODO PRUEBA ACTIVO! El dado siempre caerá en 1. 🚍");
+        mostrarMensaje("¡Viaje iniciado! El dado avanzará de 1 en 1. 🚍");
+        actualizarHUD(); // Inicializar HUD
         loop();
     };
 
@@ -102,7 +111,7 @@ export function iniciarRutaGranViaje() {
             giros++;
             if (giros > 10) {
                 clearInterval(intervalo);
-                const valor = 1; // Modo prueba
+                const valor = 1; 
                 btnDado.innerText = caras[valor - 1];
                 posActual = Math.min(posActual + valor, motor.puntos.length - 1);
             }
@@ -111,32 +120,27 @@ export function iniciarRutaGranViaje() {
 }
 
 /* ==========================================================
-   4. BUCLE Y HUD
+   4. BUCLE DE ANIMACIÓN Y HUD
    ========================================================== */
-/* ==========================================================
-   4. BUCLE DE ANIMACIÓN Y MENSAJERÍA (CORREGIDO)
-   ========================================================== */
-   function loop() {
+function loop() {
     if (!pausado) {
-        // MOVIMIENTO HACIA ADELANTE
         if (posVisual < posActual) {
             posVisual += 0.04; 
+            actualizarHUD(); // Actualizamos km mientras se mueve
             if (posVisual >= posActual) {
                 posVisual = posActual;
-                enMovimiento = false; // LIBERA EL DADO
+                enMovimiento = false;
                 verificarReto(Math.floor(posActual));
             }
         } 
-        // MOVIMIENTO HACIA ATRÁS (POR PENALIZACIÓN)
         else if (posVisual > posActual) {
-            posVisual -= 0.08; // Retroceso un poco más rápido
+            posVisual -= 0.08; 
+            actualizarHUD();
             if (posVisual <= posActual) {
                 posVisual = posActual;
-                enMovimiento = false; // LIBERA EL DADO TAMBIÉN AQUÍ
-                // No verificamos reto al retroceder para evitar bucles infinitos
+                enMovimiento = false;
             }
         }
-        
         motor.dibujar(posVisual);
     }
     requestAnimationFrame(loop);
@@ -147,13 +151,29 @@ function mostrarMensaje(texto) {
     if (box) box.innerText = texto;
 }
 
+/**
+ * ACTUALIZA EL HUD: Muestra Stickers y Kilómetros recorridos.
+ * Asegúrate de tener en tu HTML: <div id="marcador-kilometros"></div>
+ */
 function actualizarHUD() {
-    const marcador = document.getElementById('marcador-stickers');
-    if (marcador) marcador.innerText = `✨ Stickers: ${stickers}`;
+    const marcadorStickers = document.getElementById('marcador-stickers');
+    const marcadorKm = document.getElementById('marcador-kilometros');
+    
+    // Mostramos los stickers
+    if (marcadorStickers) {
+        marcadorStickers.innerText = `✨ Stickers: ${stickers}`;
+    }
+
+    // Calculamos KM basados en la posición visual (para que el número suba suavemente)
+    // Usamos Math.floor para no mostrar decimales.
+    if (marcadorKm) {
+        const km = Math.floor(posVisual);
+        marcadorKm.innerText = `🛣️ Recorrido: ${km} km`;
+    }
 }
 
 /* ==========================================================
-   5. SISTEMA DE RETOS (SIN REPETICIÓN)
+   5. SISTEMA DE RETOS
    ========================================================== */
 function verificarReto(p) {
     if (p >= 29) return lanzarModal('META');
@@ -173,6 +193,18 @@ function verificarReto(p) {
     else if (categorias.estacion.includes(p)) lanzarModal('ESTACION');
 }
 
+/* --- Variables para el control de Stickers Aleatorios --- */
+let stickersDisponibles = [
+    'letreros amarillo-rosa-01.png',
+    'letreros amarillo-rosa-02.png',
+    'letreros amarillo-rosa-03.png',
+    'letreros amarillo-rosa-04.png',
+    'letreros amarillo-rosa-05.png',
+    'letreros amarillo-rosa-06.png'
+];
+let mazoStickers = [];
+
+/* --- Función Principal de Modales --- */
 function lanzarModal(tipo) {
     const modal = document.getElementById('modal-retos');
     const opciones = document.getElementById('reto-opciones');
@@ -192,60 +224,48 @@ function lanzarModal(tipo) {
             desc.innerText = item.pregunta;
             item.opciones.forEach((o, i) => crearBoton(o, i === item.correcta, true));
             break;
-
         case 'SOS':
             item = obtenerItemNoRepetido('SOS', RETOS.sosRescate);
             titulo.innerText = "⛑️ SOS Rescate";
             desc.innerText = item.situación;
             item.opciones.forEach(o => crearBoton(o.texto, o.correcta, true));
             break;
-
         case 'CURVA':
             item = obtenerItemNoRepetido('CURVA', RETOS.curvasPeligrosas);
             titulo.innerText = "⚠️ ¡CURVA PELIGROSA!";
             desc.innerText = `${item.situación}\n\n${item.pregunta}`;
-            item.opciones.forEach((o, i) => {
-                crearBoton(o, i === item.correcta, false, item.retroceso);
-            });
+            item.opciones.forEach((o, i) => crearBoton(o, i === item.correcta, false, item.retroceso));
             break;
-
         case 'IGLESIA':
             item = obtenerItemNoRepetido('IGLESIA', (RETOS.iglesiaSignos || RETOS.puntosEncuentro));
             titulo.innerText = "⛪ Signo Sacramental";
             desc.innerText = item.pregunta;
             item.opciones.forEach((o, i) => crearBoton(o, i === item.correcta, true));
             break;
-
         case 'BONUS':
             item = obtenerItemNoRepetido('BONUS', RETOS.bonus);
             titulo.innerText = "⭐ Casilla Bonus";
             desc.innerText = item.mensaje;
-            if (item.imagen && imgRef) {
-                imgRef.src = item.imagen;
-                imgRef.style.display = "block";
-            }
             crearBoton("¡Reclamar Sticker! ✨", true, true, 0, false, true);
             break;
-
         case 'ESTACION':
             item = RETOS.estacionServicio;
             titulo.innerText = "⛽ Estación de Servicio";
             desc.innerText = "¡Has llegado a un lugar para recargar tu fe!";
-            if (item.imagen && imgRef) {
-                imgRef.src = item.imagen;
-                imgRef.style.display = "block";
-            }
             crearBoton("¡Cargar Energía de Fe! ⚡", true, false);
             break;
-
         case 'META':
             titulo.innerText = "🏁 ¡Meta del Amor!";
-            desc.innerText = `¡Felicidades Viajero de la Fe!\nRecorriste 30km y juntaste ${stickers} stickers.`;
+            desc.innerText = `¡Felicidades Viajero!\nRecorriste 30km y juntaste ${stickers} stickers.`;
+            if (imgRef) {
+                imgRef.src = 'src/imgs/elementos meta-trofeo-01.png'; 
+                imgRef.style.display = "block";
+            }
             crearBoton("¡Recibe el Trofeo del Amor!", true, false, 0, true);
             break;
     }
 
-    if (tipo !== 'BONUS' && tipo !== 'ESTACION' && item && item.imagen && imgRef) {
+    if (tipo !== 'BONUS' && tipo !== 'ESTACION' && tipo !== 'META' && item && item.imagen && imgRef) {
         imgRef.src = item.imagen;
         imgRef.style.display = "block";
     }
@@ -256,39 +276,69 @@ function lanzarModal(tipo) {
         btn.innerText = texto;
         btn.onclick = () => {
             if (esMeta) {
-                alert("🎖️ ¡Diploma Desbloqueado!");
-                location.reload();
+                opciones.innerHTML = "";
+                titulo.innerText = "🏆 ¡EL TROFEO DE TU FE!";
+                desc.innerText = "Has completado el Gran Viaje del Amor. ¡Lleva este mensaje a todo el mundo!";
+                if (imgRef) {
+                    imgRef.src = 'src/imgs/elementos meta-trofeo-05.png';
+                    imgRef.style.display = "block";
+                }
+                const btnReiniciar = document.createElement('button');
+                btnReiniciar.className = "btn-opcion";
+                btnReiniciar.innerText = "🔄 Jugar de nuevo";
+                btnReiniciar.onclick = () => location.reload();
+                opciones.appendChild(btnReiniciar);
                 return;
             }
 
+            opciones.innerHTML = ""; 
+
             if (correcta) {
                 if (daSticker) { stickers++; actualizarHUD(); }
+                titulo.innerText = "¡Excelente trabajo! ✨";
+                desc.innerText = daSticker 
+                    ? "¡Respuesta correcta! Has ganado un nuevo sticker para tu colección. 🎨"
+                    : "¡Has respondido correctamente! Tu viaje continúa con alegría.";
+
                 if (esBonus) {
                     titulo.innerText = "¡NUEVO STICKER!";
                     desc.innerText = "¡Felicidades por tu recompensa!";
-                    opciones.innerHTML = ""; 
                     if (imgRef) {
-                        imgRef.src = 'src/imgs/letreros amarillo-rosa-01.png';
+                        // Lógica de Sticker Aleatorio sin repetición
+                        if (mazoStickers.length === 0) {
+                            mazoStickers = [...stickersDisponibles].sort(() => Math.random() - 0.5);
+                        }
+                        const stickerElegido = mazoStickers.pop();
+                        
+                        imgRef.src = `src/imgs/${stickerElegido}`;
                         imgRef.style.display = "block";
                         imgRef.style.width = "100%";
                     }
-                    const btnCerrar = document.createElement('button');
-                    btnCerrar.className = "btn-opcion";
-                    btnCerrar.innerText = "Continuar el viaje 🚍";
-                    btnCerrar.onclick = () => modal.classList.add('hidden');
-                    opciones.appendChild(btnCerrar);
-                    return; 
                 }
-                mostrarMensaje("¡Excelente! Respuesta correcta. ✨");
-            // Dentro de crearBoton, en la parte de la respuesta incorrecta:
-            } else {
+                const btnCont = document.createElement('button');
+                btnCont.className = "btn-opcion";
+                btnCont.innerText = "Continuar el viaje 🚍";
+                btnCont.onclick = () => modal.classList.add('hidden');
+                opciones.appendChild(btnCont);
+            } 
+            else {
+                titulo.innerText = "Sigue intentando...";
+                desc.innerText = "¡Respuesta incorrecta! Pero no te preocupes, el viaje continúa para que sigas aprendiendo.";
                 if (penalizacion > 0) {
-                    posActual = Math.max(0, posActual - penalizacion);
-                    enMovimiento = true; // ACTIVAMOS EL MOVIMIENTO PARA EL RETROCESO
-                    mostrarMensaje(`⚠️ ¡Derrape! Retrocedes ${penalizacion} casillas.`);
+                    desc.innerText = `¡Respuesta incorrecta! ⚠️ Por el derrape, retrocedes ${penalizacion} casillas.`;
                 }
+                const btnContError = document.createElement('button');
+                btnContError.className = "btn-opcion";
+                btnContError.innerText = "Seguir adelante 🚍";
+                btnContError.onclick = () => {
+                    if (penalizacion > 0) {
+                        posActual = Math.max(0, posActual - penalizacion);
+                        enMovimiento = true;
+                    }
+                    modal.classList.add('hidden');
+                };
+                opciones.appendChild(btnContError);
             }
-            modal.classList.add('hidden');
         };
         opciones.appendChild(btn);
     }

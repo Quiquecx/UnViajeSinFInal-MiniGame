@@ -85,7 +85,7 @@ body {
 }
 
 /* ==========================================================
-   PANTALLA DE INICIO (CENTRADO DEL CAMIÓN)
+   PANTALLA DE INICIO
    ========================================================== */
 .capa { position: absolute; }
 
@@ -103,7 +103,7 @@ body {
 .capa.personajes-portada {
     bottom: 115px;
     left: 50%;
-    transform: translateX(-50%); /* Centrado exacto del camión */
+    transform: translateX(-50%);
     z-index: 5;
     display: flex;
     justify-content: center;
@@ -152,17 +152,16 @@ body {
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    width: 45%; 
-    background: rgba(255, 255, 255, 0.4); 
+    width: 40%; 
+    background: rgba(255, 255, 255, 0.85); 
     backdrop-filter: blur(10px); 
-    -webkit-backdrop-filter: blur(10px);
-    padding: 10px 20px;
-    border-radius: 20px;
-    border: 2px solid rgba(255, 255, 255, 0.6);
+    padding: 12px 20px;
+    border-radius: 50px;
+    border: 3px solid var(--azul-cielo);
     color: #1a365d;
-    font-size: 1rem;
+    font-size: 0.95rem;
     text-align: center;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
     z-index: 45;
 }
 
@@ -181,35 +180,81 @@ body {
 
 .hud-superior, .controles-inferiores { pointer-events: auto; }
 
+/* NUEVO ESTILO DEL HUD SUPERIOR */
 .hud-superior {
+    display: flex;
+    align-items: center;
+    gap: 15px;
     background: rgba(255, 255, 255, 0.9);
-    padding: 10px 20px;
-    border-radius: 30px;
-    border: 3px solid var(--azul-cielo);
-    font-weight: bold;
-    font-size: 18px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    padding: 8px 18px;
+    border-radius: 40px;
+    border: 3px solid var(--amarillo-bus);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
 }
 
-.btn-dado {
-    width: 90px;
-    height: 90px;
-    font-size: 3rem;
-    background: white;
-    border: 5px solid var(--amarillo-bus);
-    border-radius: 20px;
+.stats-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+#marcador-stickers, #marcador-kilometros {
+    font-weight: bold;
+    font-size: 15px;
+    color: #333;
+    white-space: nowrap;
+}
+
+#marcador-kilometros {
+    color: var(--azul-cielo);
+    border-top: 1px solid #ddd;
+    padding-top: 2px;
+}
+
+.btn-circular {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: none;
+    background: var(--azul-cielo);
+    color: white;
+    font-size: 18px;
     cursor: pointer;
-    box-shadow: 0 8px 0 #cc9900;
-    transition: transform 0.2s;
+    box-shadow: 0 4px 0 #0077ae;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.btn-circular:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 #0077ae;
+}
+
+/* BOTÓN DADO */
+.btn-dado {
+    width: 100px;
+    height: 100px;
+    font-size: 3.5rem;
+    background: white;
+    border: 6px solid var(--amarillo-bus);
+    border-radius: 25px;
+    cursor: pointer;
+    box-shadow: 0 10px 0 #cc9900;
+    transition: all 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-dado:active { 
-    transform: scale(0.8) rotate(20deg); 
+    transform: translateY(6px) scale(0.95); 
     box-shadow: 0 4px 0 #cc9900; 
 }
 
 /* ==========================================================
-   BOTONES GENERALES (SIN CAMBIOS)
+   BOTONES GENERALES
    ========================================================== */
 .btn-primary {
     background-color: var(--amarillo-bus);
@@ -236,9 +281,9 @@ body {
 }
 
 /* ==========================================================
-   MODALES Y RETOS (ESTILOS MEJORADOS)
+   MODALES Y RETOS
    ========================================================== */
-   .modal {
+.modal {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.85);
@@ -251,7 +296,7 @@ body {
 
 .modal-contenido {
     background: white;
-    width: 70%; /* Un poco más angosto para que se vea más elegante */
+    width: 70%;
     max-height: 90%;
     padding: 25px;
     border-radius: 40px;
@@ -264,23 +309,21 @@ body {
     box-shadow: 0 20px 40px rgba(0,0,0,0.4);
 }
 
-/* CONTROL DE IMÁGENES DE RETOS (Banderines y Referencias) */
 #reto-imagen {
     width: auto;
-    max-width: 280px; /* Tamaño ideal para que no tape todo */
-    max-height: 180px; /* Evita que crezca demasiado hacia abajo */
+    max-width: 280px;
+    max-height: 180px;
     object-fit: contain;
     margin: 10px 0 20px 0;
     border-radius: 15px;
     filter: drop-shadow(0 5px 10px rgba(0,0,0,0.1));
-    display: none; /* Se activa desde el JS */
 }
 
 #reto-titulo {
-    font-size: 24px;
+    font-size: 26px;
     color: var(--azul-cielo);
     margin-bottom: 10px;
-    margin-top: 0;
+    text-transform: uppercase;
 }
 
 #reto-descripcion {
@@ -293,12 +336,11 @@ body {
 
 .opciones-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Dos columnas para botones */
+    grid-template-columns: 1fr 1fr;
     gap: 12px;
     width: 100%;
 }
 
-/* Si hay solo un botón (como en el Bonus), que ocupe todo el ancho */
 .opciones-grid:has(> :only-child) {
     grid-template-columns: 1fr;
 }
@@ -311,12 +353,8 @@ body {
     font-size: 16px;
     font-weight: bold;
     color: #2c3e50;
-    font-family: var(--fuente-principal);
     cursor: pointer;
     transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .btn-opcion:hover {
@@ -324,10 +362,6 @@ body {
     border-color: #f1c40f;
     transform: translateY(-3px);
     box-shadow: 0 5px 15px rgba(241, 196, 15, 0.3);
-}
-
-.btn-opcion:active {
-    transform: scale(0.98);
 }
 
 /* ==========================================================

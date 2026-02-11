@@ -60,7 +60,10 @@
             
             <div id="interfaz-flotante">
                 <div class="hud-superior">
-                    <div id="marcador-stickers">✨ Stickers: 0</div>
+                    <div id="hud-stats" class="stats-container">
+                        <div id="marcador-stickers">✨ Stickers: 0</div>
+                        <div id="marcador-kilometros">🛣️ Recorrido: 0 km</div>
+                    </div>
                     <button id="btn-pausa" class="btn-circular">⏸️</button>
                 </div>
                 
@@ -99,7 +102,8 @@
             const btnReanudar = document.getElementById('btn-reanudar');
             if(btnReanudar) {
                 btnReanudar.onclick = () => {
-                    document.getElementById('btn-pausa').click();
+                    const btnPausa = document.getElementById('btn-pausa');
+                    if(btnPausa) btnPausa.click();
                 };
             }
         });
