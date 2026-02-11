@@ -66,17 +66,43 @@ let enMovimiento = false;
 let pausado = false;
 let stickers = 0;
 
-const historialRetos = {
-    TRIVIA: [], SOS: [], CURVA: [], BONUS: [], IGLESIA: []
+
+/* ==========================================================
+   SISTEMA DE CONTROL DE PREGUNTAS (SIN REPETICIONES)
+   ========================================================== */
+
+// Objeto que guardará las preguntas disponibles (las que aún no han salido)
+const mazosDisponibles = {
+    TRIVIA: [],
+    SOS: [],
+    CURVA: [],
+    BONUS: [],
+    IGLESIA: []
 };
 
+/**
+ * Obtiene un item de forma aleatoria, asegurando que se usen todos 
+ * antes de repetir cualquiera.
+ */
 function obtenerItemNoRepetido(categoria, listaOriginal) {
-    if (historialRetos[categoria].length === 0) {
-        historialRetos[categoria] = listaOriginal.map((_, index) => index);
+    // Si el mazo de esta categoría está vacío, lo recargamos con todos los índices
+    if (!mazosDisponibles[categoria] || mazosDisponibles[categoria].length === 0) {
+        // Creamos un array de índices [0, 1, 2, 3...] según el tamaño de la lista en datos.js
+        mazosDisponibles[categoria] = listaOriginal.map((_, index) => index);
+        
+        // Mezclamos el mazo inmediatamente para que el orden sea siempre distinto (Fisher-Yates shuffle)
+        for (let i = mazosDisponibles[categoria].length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [mazosDisponibles[categoria][i], mazosDisponibles[categoria][j]] = 
+            [mazosDisponibles[categoria][j], mazosDisponibles[categoria][i]];
+        }
+        console.log(`--- Mazo de ${categoria} recargado y mezclado ---`);
     }
-    const randomIndexInAvailable = Math.floor(Math.random() * historialRetos[categoria].length);
-    const itemIndex = historialRetos[categoria].splice(randomIndexInAvailable, 1)[0];
-    return listaOriginal[itemIndex];
+
+    // Extraemos el último índice del mazo mezclado (así garantizamos que no se repita)
+    const indiceElegido = mazosDisponibles[categoria].pop();
+    
+    return listaOriginal[indiceElegido];
 }
 
 /* ==========================================================
@@ -151,10 +177,6 @@ function mostrarMensaje(texto) {
     if (box) box.innerText = texto;
 }
 
-/**
- * ACTUALIZA EL HUD: Muestra Stickers y Kilómetros recorridos.
- * Asegúrate de tener en tu HTML: <div id="marcador-kilometros"></div>
- */
 function actualizarHUD() {
     const marcadorStickers = document.getElementById('marcador-stickers');
     const marcadorKm = document.getElementById('marcador-kilometros');
