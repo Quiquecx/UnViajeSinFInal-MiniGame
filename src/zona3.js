@@ -1,6 +1,35 @@
 import { RETOS } from './datos.js';
 
 /* ==========================================================
+   0. GESTIÓN DE SONIDO
+   ========================================================== */
+const sonidos = {
+    intro: new Audio('src/mp3/intro.mp3'),
+    game: new Audio('src/mp3/game.mp3'),
+    dado: new Audio('src/mp3/dado.mp3'),
+    correcto: new Audio('src/mp3/correcto.mp3'),
+    error: new Audio('src/mp3/error.mp3')
+};
+
+// --- AJUSTE DE VOLUMEN ---
+sonidos.intro.volume = 0.6;
+sonidos.game.volume = 0.2; // Música de fondo bajita
+sonidos.dado.volume = 0.8;
+sonidos.correcto.volume = 0.7;
+sonidos.error.volume = 0.7;
+
+// Configurar bucles para música de fondo
+sonidos.intro.loop = true;
+sonidos.game.loop = true;
+
+function reproducirSonido(nombre) {
+    if (sonidos[nombre]) {
+        sonidos[nombre].currentTime = 0;
+        sonidos[nombre].play().catch(e => console.warn("Audio bloqueado por el navegador"));
+    }
+}
+
+/* ==========================================================
    1. MOTOR GRÁFICO (TABLERO Y AUTOBÚS)
    ========================================================== */
 class TableroGrafico {
@@ -70,7 +99,6 @@ const mazosDisponibles = {
 
 function obtenerItemNoRepetido(categoria, listaOriginal) {
     if (!listaOriginal || listaOriginal.length === 0) return null;
-
     if (!mazosDisponibles[categoria] || mazosDisponibles[categoria].length === 0) {
         mazosDisponibles[categoria] = listaOriginal.map((_, index) => index);
         for (let i = mazosDisponibles[categoria].length - 1; i > 0; i--) {
@@ -88,8 +116,13 @@ function obtenerItemNoRepetido(categoria, listaOriginal) {
    ========================================================== */
 export function iniciarRutaGranViaje() {
     motor = new TableroGrafico('tablero-canvas');
+    
+    // Iniciar audio intro
+    reproducirSonido('intro');
 
     document.getElementById('btn-iniciar').onclick = () => {
+        sonidos.intro.pause();
+        reproducirSonido('game');
         document.getElementById('pantalla-inicio').classList.add('hidden');
         document.getElementById('contenedor-tablero').classList.remove('hidden');
         mostrarMensaje("¡Viaje iniciado! Lanza el dado. 🚍");
@@ -97,6 +130,7 @@ export function iniciarRutaGranViaje() {
         loop();
     };
 
+    // --- CORRECCIÓN BOTÓN INSTRUCCIONES ---
     document.getElementById('btn-instrucciones').onclick = () => {
         document.getElementById('modal-instrucciones').classList.remove('hidden');
     };
@@ -108,6 +142,8 @@ export function iniciarRutaGranViaje() {
     btnDado.onclick = () => {
         if (enMovimiento || pausado) return;
         enMovimiento = true;
+        reproducirSonido('dado'); 
+        
         let giros = 0;
         const caras = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
         const intervalo = setInterval(() => {
@@ -115,7 +151,7 @@ export function iniciarRutaGranViaje() {
             giros++;
             if (giros > 12) {
                 clearInterval(intervalo);
-                const valor = Math.floor(Math.random() * 6) + 1; // DADO ALEATORIO 1-6
+                const valor = Math.floor(Math.random() * 6) + 1;
                 btnDado.innerText = caras[valor - 1];
                 mostrarMensaje(`¡Avanzas ${valor} km! 🎲`);
                 posActual = Math.min(posActual + valor, motor.puntos.length - 1);
@@ -166,7 +202,6 @@ function mostrarMensaje(texto) {
    5. SISTEMA DE RETOS
    ========================================================== */
 function verificarReto(p) {
-    // META: Si es el último punto del array (índice 28)
     if (p >= motor.puntos.length - 1) return lanzarModal('META');
 
     const categorias = {
@@ -277,6 +312,7 @@ function lanzarModal(tipo) {
             }
 
             if (correcta) {
+                reproducirSonido('correcto');
                 if (daSticker) { stickers++; actualizarHUD(); }
                 if (esBonus && imgRef) {
                     if (mazoStickers.length === 0) mazoStickers = [...stickersDisponibles].sort(() => Math.random() - 0.5);
@@ -292,6 +328,7 @@ function lanzarModal(tipo) {
                 btnC.onclick = () => modal.classList.add('hidden');
                 opciones.appendChild(btnC);
             } else {
+                reproducirSonido('error');
                 titulo.innerText = "Sigue intentando...";
                 desc.innerText = penalizacion > 0 ? `Incorrecto. Retrocedes ${penalizacion} casillas.` : "¡Inténtalo en la próxima parada!";
                 opciones.innerHTML = "";
