@@ -15,14 +15,14 @@ class TableroGrafico {
         this.imgBusCerrado.src = 'src/imgs/BusCerrado.png';
         
         this.puntos = [
-            {x: 720, y: 200}, {x: 675, y: 235}, {x: 685, y: 80},  {x: 625, y: 45},  
-            {x: 455, y: 95},  {x: 385, y: 110}, {x: 320, y: 100}, {x: 250, y: 75},  
-            {x: 200, y: 65},  {x: 60, y: 215},  {x: 125, y: 290}, {x: 155, y: 455}, 
-            {x: 40, y: 540},  {x: 125, y: 540}, {x: 185, y: 540}, {x: 380, y: 540}, 
-            {x: 385, y: 540}, {x: 470, y: 540}, {x: 635, y: 540}, {x: 680, y: 540}, 
-            {x: 830, y: 540}, {x: 855, y: 465}, {x: 790, y: 465}, {x: 735, y: 540}, 
-            {x: 635, y: 540}, {x: 580, y: 475}, {x: 545, y: 365}, {x: 585, y: 230}, 
-            {x: 500, y: 200}, {x: 455, y: 345}  
+            {x: 720, y: 200}, {x: 674, y: 159}, {x: 682, y: 99},  {x: 420, y: 96},
+            {x: 367, y: 95},  {x: 311, y: 85},  {x: 248, y: 31},  {x: 203, y: 41},
+            {x: 104, y: 129}, {x: 139, y: 203}, {x: 153, y: 268}, {x: 60, y: 448},
+            {x: 114, y: 502}, {x: 183, y: 508}, {x: 381, y: 574}, {x: 425, y: 519},
+            {x: 454, y: 464}, {x: 659, y: 521}, {x: 717, y: 502}, {x: 848, y: 400},
+            {x: 844, y: 318}, {x: 794, y: 288}, {x: 732, y: 309}, {x: 675, y: 324},
+            {x: 625, y: 302}, {x: 596, y: 242}, {x: 559, y: 195}, {x: 506, y: 177},
+            {x: 448, y: 217}
         ];
     }
 
@@ -34,12 +34,10 @@ class TableroGrafico {
 
         const i = Math.floor(pos);
         const p = this.puntos[i] || this.puntos[this.puntos.length - 1];
-        
         const imgParaDibujar = (pos === 0) ? this.imgBusAbierto : this.imgBusCerrado;
 
         if (imgParaDibujar.complete && p) {
             const bounce = pausado ? 0 : Math.sin(Date.now() / 200) * 5;
-            
             const sigPunto = this.puntos[i + 1] || p;
             const mirandoIzquierda = sigPunto.x < p.x;
 
@@ -57,7 +55,7 @@ class TableroGrafico {
 }
 
 /* ==========================================================
-   2. VARIABLES DE ESTADO
+   2. VARIABLES DE ESTADO Y MAZOS
    ========================================================== */
 let posActual = 0;
 let posVisual = 0;
@@ -66,42 +64,22 @@ let enMovimiento = false;
 let pausado = false;
 let stickers = 0;
 
-
-/* ==========================================================
-   SISTEMA DE CONTROL DE PREGUNTAS (SIN REPETICIONES)
-   ========================================================== */
-
-// Objeto que guardará las preguntas disponibles (las que aún no han salido)
 const mazosDisponibles = {
-    TRIVIA: [],
-    SOS: [],
-    CURVA: [],
-    BONUS: [],
-    IGLESIA: []
+    TRIVIA: [], SOS: [], CURVA: [], BONUS: [], IGLESIA: []
 };
 
-/**
- * Obtiene un item de forma aleatoria, asegurando que se usen todos 
- * antes de repetir cualquiera.
- */
 function obtenerItemNoRepetido(categoria, listaOriginal) {
-    // Si el mazo de esta categoría está vacío, lo recargamos con todos los índices
+    if (!listaOriginal || listaOriginal.length === 0) return null;
+
     if (!mazosDisponibles[categoria] || mazosDisponibles[categoria].length === 0) {
-        // Creamos un array de índices [0, 1, 2, 3...] según el tamaño de la lista en datos.js
         mazosDisponibles[categoria] = listaOriginal.map((_, index) => index);
-        
-        // Mezclamos el mazo inmediatamente para que el orden sea siempre distinto (Fisher-Yates shuffle)
         for (let i = mazosDisponibles[categoria].length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [mazosDisponibles[categoria][i], mazosDisponibles[categoria][j]] = 
             [mazosDisponibles[categoria][j], mazosDisponibles[categoria][i]];
         }
-        console.log(`--- Mazo de ${categoria} recargado y mezclado ---`);
     }
-
-    // Extraemos el último índice del mazo mezclado (así garantizamos que no se repita)
     const indiceElegido = mazosDisponibles[categoria].pop();
-    
     return listaOriginal[indiceElegido];
 }
 
@@ -114,8 +92,8 @@ export function iniciarRutaGranViaje() {
     document.getElementById('btn-iniciar').onclick = () => {
         document.getElementById('pantalla-inicio').classList.add('hidden');
         document.getElementById('contenedor-tablero').classList.remove('hidden');
-        mostrarMensaje("¡Viaje iniciado! El dado avanzará de 1 en 1. 🚍");
-        actualizarHUD(); // Inicializar HUD
+        mostrarMensaje("¡Viaje iniciado! Lanza el dado. 🚍");
+        actualizarHUD();
         loop();
     };
 
@@ -135,10 +113,11 @@ export function iniciarRutaGranViaje() {
         const intervalo = setInterval(() => {
             btnDado.innerText = caras[Math.floor(Math.random() * 6)];
             giros++;
-            if (giros > 10) {
+            if (giros > 12) {
                 clearInterval(intervalo);
-                const valor = 1; 
+                const valor = Math.floor(Math.random() * 6) + 1; // DADO ALEATORIO 1-6
                 btnDado.innerText = caras[valor - 1];
+                mostrarMensaje(`¡Avanzas ${valor} km! 🎲`);
                 posActual = Math.min(posActual + valor, motor.puntos.length - 1);
             }
         }, 80);
@@ -146,20 +125,19 @@ export function iniciarRutaGranViaje() {
 }
 
 /* ==========================================================
-   4. BUCLE DE ANIMACIÓN Y HUD
+   4. BUCLE Y HUD
    ========================================================== */
 function loop() {
     if (!pausado) {
         if (posVisual < posActual) {
             posVisual += 0.04; 
-            actualizarHUD(); // Actualizamos km mientras se mueve
+            actualizarHUD();
             if (posVisual >= posActual) {
                 posVisual = posActual;
                 enMovimiento = false;
                 verificarReto(Math.floor(posActual));
             }
-        } 
-        else if (posVisual > posActual) {
+        } else if (posVisual > posActual) {
             posVisual -= 0.08; 
             actualizarHUD();
             if (posVisual <= posActual) {
@@ -172,41 +150,34 @@ function loop() {
     requestAnimationFrame(loop);
 }
 
+function actualizarHUD() {
+    const marcStickers = document.getElementById('marcador-stickers');
+    const marcKm = document.getElementById('marcador-kilometros');
+    if (marcStickers) marcStickers.innerText = `✨ Stickers: ${stickers}`;
+    if (marcKm) marcKm.innerText = `🛣️ Recorrido: ${Math.floor(posVisual)} km`;
+}
+
 function mostrarMensaje(texto) {
     const box = document.getElementById('consola-mensajes');
     if (box) box.innerText = texto;
-}
-
-function actualizarHUD() {
-    const marcadorStickers = document.getElementById('marcador-stickers');
-    const marcadorKm = document.getElementById('marcador-kilometros');
-    
-    // Mostramos los stickers
-    if (marcadorStickers) {
-        marcadorStickers.innerText = `✨ Stickers: ${stickers}`;
-    }
-
-    // Calculamos KM basados en la posición visual (para que el número suba suavemente)
-    // Usamos Math.floor para no mostrar decimales.
-    if (marcadorKm) {
-        const km = Math.floor(posVisual);
-        marcadorKm.innerText = `🛣️ Recorrido: ${km} km`;
-    }
 }
 
 /* ==========================================================
    5. SISTEMA DE RETOS
    ========================================================== */
 function verificarReto(p) {
-    if (p >= 29) return lanzarModal('META');
+    // META: Si es el último punto del array (índice 28)
+    if (p >= motor.puntos.length - 1) return lanzarModal('META');
+
     const categorias = {
         trivia: [2, 7, 14, 22],
         sos: [4, 11, 19, 27],
         curva: [8, 15, 25],
-        bonus: [5, 12, 20, 28],
+        bonus: [5, 12, 20],
         iglesia: [10, 18, 26],
         estacion: [3, 16, 23]
     };
+
     if (categorias.trivia.includes(p)) lanzarModal('TRIVIA');
     else if (categorias.sos.includes(p)) lanzarModal('SOS');
     else if (categorias.curva.includes(p)) lanzarModal('CURVA');
@@ -215,18 +186,13 @@ function verificarReto(p) {
     else if (categorias.estacion.includes(p)) lanzarModal('ESTACION');
 }
 
-/* --- Variables para el control de Stickers Aleatorios --- */
 let stickersDisponibles = [
-    'letreros amarillo-rosa-01.png',
-    'letreros amarillo-rosa-02.png',
-    'letreros amarillo-rosa-03.png',
-    'letreros amarillo-rosa-04.png',
-    'letreros amarillo-rosa-05.png',
-    'letreros amarillo-rosa-06.png'
+    'letreros amarillo-rosa-01.png', 'letreros amarillo-rosa-02.png',
+    'letreros amarillo-rosa-03.png', 'letreros amarillo-rosa-04.png',
+    'letreros amarillo-rosa-05.png', 'letreros amarillo-rosa-06.png'
 ];
 let mazoStickers = [];
 
-/* --- Función Principal de Modales --- */
 function lanzarModal(tipo) {
     const modal = document.getElementById('modal-retos');
     const opciones = document.getElementById('reto-opciones');
@@ -274,16 +240,16 @@ function lanzarModal(tipo) {
             item = RETOS.estacionServicio;
             titulo.innerText = "⛽ Estación de Servicio";
             desc.innerText = "¡Has llegado a un lugar para recargar tu fe!";
-            crearBoton("¡Cargar Energía de Fe! ⚡", true, false);
+            crearBoton("¡Cargar Energía! ⚡", true, false);
             break;
         case 'META':
             titulo.innerText = "🏁 ¡Meta del Amor!";
-            desc.innerText = `¡Felicidades Viajero!\nRecorriste 30km y juntaste ${stickers} stickers.`;
+            desc.innerText = `¡Felicidades Viajero!\nLlegaste al final con ${stickers} stickers.`;
             if (imgRef) {
                 imgRef.src = 'src/imgs/elementos meta-trofeo-01.png'; 
                 imgRef.style.display = "block";
             }
-            crearBoton("¡Recibe el Trofeo del Amor!", true, false, 0, true);
+            crearBoton("¡Recibe el Trofeo!", true, false, 0, true);
             break;
     }
 
@@ -300,66 +266,43 @@ function lanzarModal(tipo) {
             if (esMeta) {
                 opciones.innerHTML = "";
                 titulo.innerText = "🏆 ¡EL TROFEO DE TU FE!";
-                desc.innerText = "Has completado el Gran Viaje del Amor. ¡Lleva este mensaje a todo el mundo!";
-                if (imgRef) {
-                    imgRef.src = 'src/imgs/elementos meta-trofeo-05.png';
-                    imgRef.style.display = "block";
-                }
+                desc.innerText = "Has completado el Gran Viaje del Amor.";
+                if (imgRef) imgRef.src = 'src/imgs/elementos meta-trofeo-05.png';
                 const btnReiniciar = document.createElement('button');
-                btnReiniciar.className = "btn-opcion";
                 btnReiniciar.innerText = "🔄 Jugar de nuevo";
+                btnReiniciar.className = "btn-opcion";
                 btnReiniciar.onclick = () => location.reload();
                 opciones.appendChild(btnReiniciar);
                 return;
             }
 
-            opciones.innerHTML = ""; 
-
             if (correcta) {
                 if (daSticker) { stickers++; actualizarHUD(); }
-                titulo.innerText = "¡Excelente trabajo! ✨";
-                desc.innerText = daSticker 
-                    ? "¡Respuesta correcta! Has ganado un nuevo sticker para tu colección. 🎨"
-                    : "¡Has respondido correctamente! Tu viaje continúa con alegría.";
-
-                if (esBonus) {
-                    titulo.innerText = "¡NUEVO STICKER!";
-                    desc.innerText = "¡Felicidades por tu recompensa!";
-                    if (imgRef) {
-                        // Lógica de Sticker Aleatorio sin repetición
-                        if (mazoStickers.length === 0) {
-                            mazoStickers = [...stickersDisponibles].sort(() => Math.random() - 0.5);
-                        }
-                        const stickerElegido = mazoStickers.pop();
-                        
-                        imgRef.src = `src/imgs/${stickerElegido}`;
-                        imgRef.style.display = "block";
-                        imgRef.style.width = "100%";
-                    }
+                if (esBonus && imgRef) {
+                    if (mazoStickers.length === 0) mazoStickers = [...stickersDisponibles].sort(() => Math.random() - 0.5);
+                    imgRef.src = `src/imgs/${mazoStickers.pop()}`;
+                    imgRef.style.display = "block";
                 }
-                const btnCont = document.createElement('button');
-                btnCont.className = "btn-opcion";
-                btnCont.innerText = "Continuar el viaje 🚍";
-                btnCont.onclick = () => modal.classList.add('hidden');
-                opciones.appendChild(btnCont);
-            } 
-            else {
+                titulo.innerText = "¡Excelente! ✨";
+                desc.innerText = "¡Correcto! El viaje continúa.";
+                opciones.innerHTML = "";
+                const btnC = document.createElement('button');
+                btnC.innerText = "Continuar 🚍";
+                btnC.className = "btn-opcion";
+                btnC.onclick = () => modal.classList.add('hidden');
+                opciones.appendChild(btnC);
+            } else {
                 titulo.innerText = "Sigue intentando...";
-                desc.innerText = "¡Respuesta incorrecta! Pero no te preocupes, el viaje continúa para que sigas aprendiendo.";
-                if (penalizacion > 0) {
-                    desc.innerText = `¡Respuesta incorrecta! ⚠️ Por el derrape, retrocedes ${penalizacion} casillas.`;
-                }
-                const btnContError = document.createElement('button');
-                btnContError.className = "btn-opcion";
-                btnContError.innerText = "Seguir adelante 🚍";
-                btnContError.onclick = () => {
-                    if (penalizacion > 0) {
-                        posActual = Math.max(0, posActual - penalizacion);
-                        enMovimiento = true;
-                    }
+                desc.innerText = penalizacion > 0 ? `Incorrecto. Retrocedes ${penalizacion} casillas.` : "¡Inténtalo en la próxima parada!";
+                opciones.innerHTML = "";
+                const btnE = document.createElement('button');
+                btnE.innerText = "Seguir 🚍";
+                btnE.className = "btn-opcion";
+                btnE.onclick = () => {
+                    if (penalizacion > 0) { posActual = Math.max(0, posActual - penalizacion); enMovimiento = true; }
                     modal.classList.add('hidden');
                 };
-                opciones.appendChild(btnContError);
+                opciones.appendChild(btnE);
             }
         };
         opciones.appendChild(btn);
