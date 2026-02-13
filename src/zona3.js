@@ -11,21 +11,19 @@ const sonidos = {
     error: new Audio('src/mp3/error.mp3')
 };
 
-// --- AJUSTE DE VOLUMEN ---
 sonidos.intro.volume = 0.6;
-sonidos.game.volume = 0.2; // Música de fondo bajita
+sonidos.game.volume = 0.2; 
 sonidos.dado.volume = 0.8;
 sonidos.correcto.volume = 0.7;
 sonidos.error.volume = 0.7;
 
-// Configurar bucles para música de fondo
 sonidos.intro.loop = true;
 sonidos.game.loop = true;
 
 function reproducirSonido(nombre) {
     if (sonidos[nombre]) {
         sonidos[nombre].currentTime = 0;
-        sonidos[nombre].play().catch(e => console.warn("Audio bloqueado por el navegador"));
+        sonidos[nombre].play().catch(e => console.warn("Audio bloqueado"));
     }
 }
 
@@ -116,8 +114,6 @@ function obtenerItemNoRepetido(categoria, listaOriginal) {
    ========================================================== */
 export function iniciarRutaGranViaje() {
     motor = new TableroGrafico('tablero-canvas');
-    
-    // Iniciar audio intro
     reproducirSonido('intro');
 
     document.getElementById('btn-iniciar').onclick = () => {
@@ -130,7 +126,6 @@ export function iniciarRutaGranViaje() {
         loop();
     };
 
-    // --- CORRECCIÓN BOTÓN INSTRUCCIONES ---
     document.getElementById('btn-instrucciones').onclick = () => {
         document.getElementById('modal-instrucciones').classList.remove('hidden');
     };
@@ -153,8 +148,20 @@ export function iniciarRutaGranViaje() {
                 clearInterval(intervalo);
                 const valor = Math.floor(Math.random() * 6) + 1;
                 btnDado.innerText = caras[valor - 1];
-                mostrarMensaje(`¡Avanzas ${valor} km! 🎲`);
-                posActual = Math.min(posActual + valor, motor.puntos.length - 1);
+                
+                // --- LÓGICA DE REBOTE EN META ---
+                const meta = motor.puntos.length - 1; // Casilla 28
+                let nuevaPos = posActual + valor;
+                
+                if (nuevaPos > meta) {
+                    const exceso = nuevaPos - meta;
+                    nuevaPos = meta - exceso;
+                    mostrarMensaje(`¡Rebotaste! Sacaste ${valor}, retrocedes a la casilla ${nuevaPos} ↩️`);
+                } else {
+                    mostrarMensaje(`¡Avanzas ${valor} casillas! 🎲`);
+                }
+                
+                posActual = nuevaPos;
             }
         }, 80);
     };
@@ -179,6 +186,7 @@ function loop() {
             if (posVisual <= posActual) {
                 posVisual = posActual;
                 enMovimiento = false;
+                verificarReto(Math.floor(posActual)); // También verifica reto al retroceder
             }
         }
         motor.dibujar(posVisual);
@@ -190,7 +198,8 @@ function actualizarHUD() {
     const marcStickers = document.getElementById('marcador-stickers');
     const marcKm = document.getElementById('marcador-kilometros');
     if (marcStickers) marcStickers.innerText = `✨ Stickers: ${stickers}`;
-    if (marcKm) marcKm.innerText = `🛣️ Recorrido: ${Math.floor(posVisual)} km`;
+    // --- MULTIPLO DE 10 ---
+    if (marcKm) marcKm.innerText = `🛣️ Recorrido: ${Math.floor(posVisual) * 10} km`;
 }
 
 function mostrarMensaje(texto) {
@@ -261,7 +270,7 @@ function lanzarModal(tipo) {
             break;
         case 'IGLESIA':
             item = obtenerItemNoRepetido('IGLESIA', (RETOS.iglesiaSignos || RETOS.puntosEncuentro));
-            titulo.innerText = "⛪ Signo Sacramental";
+            titulo.innerText = "📍 Punto de Encuentro";
             desc.innerText = item.pregunta;
             item.opciones.forEach((o, i) => crearBoton(o, i === item.correcta, true));
             break;
@@ -269,12 +278,20 @@ function lanzarModal(tipo) {
             item = obtenerItemNoRepetido('BONUS', RETOS.bonus);
             titulo.innerText = "⭐ Casilla Bonus";
             desc.innerText = item.mensaje;
+            if (item.imagen && imgRef) {
+                imgRef.src = item.imagen;
+                imgRef.style.display = "block";
+            }
             crearBoton("¡Reclamar Sticker! ✨", true, true, 0, false, true);
             break;
         case 'ESTACION':
             item = RETOS.estacionServicio;
             titulo.innerText = "⛽ Estación de Servicio";
             desc.innerText = "¡Has llegado a un lugar para recargar tu fe!";
+            if (item.imagen && imgRef) {
+                imgRef.src = item.imagen;
+                imgRef.style.display = "block";
+            }
             crearBoton("¡Cargar Energía! ⚡", true, false);
             break;
         case 'META':
@@ -288,7 +305,7 @@ function lanzarModal(tipo) {
             break;
     }
 
-    if (tipo !== 'BONUS' && tipo !== 'ESTACION' && tipo !== 'META' && item && item.imagen && imgRef) {
+    if (['TRIVIA', 'SOS', 'CURVA', 'IGLESIA'].includes(tipo) && item && item.imagen && imgRef) {
         imgRef.src = item.imagen;
         imgRef.style.display = "block";
     }
@@ -330,7 +347,7 @@ function lanzarModal(tipo) {
             } else {
                 reproducirSonido('error');
                 titulo.innerText = "Sigue intentando...";
-                desc.innerText = penalizacion > 0 ? `Incorrecto. Retrocedes ${penalizacion} casillas.` : "¡Inténtalo en la próxima parada!";
+                desc.innerText = penalizacion > 0 ? `Incorrecto. Retrocedes ${penalizacion} casillas.` : "¡Inténtalo en la segunda estación!";
                 opciones.innerHTML = "";
                 const btnE = document.createElement('button');
                 btnE.innerText = "Seguir 🚍";
