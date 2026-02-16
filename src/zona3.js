@@ -60,21 +60,29 @@ class TableroGrafico {
         }
 
         const i = Math.floor(pos);
-        const p = this.puntos[i] || this.puntos[this.puntos.length - 1];
+        const fraccion = pos - i; // Qué tan lejos está del siguiente punto (0.0 a 1.0)
+        
+        const p1 = this.puntos[i] || this.puntos[this.puntos.length - 1];
+        const p2 = this.puntos[i + 1] || p1;
+
+        // --- CÁLCULO DE DESPLAZAMIENTO (Interpolación) ---
+        const xInterp = p1.x + (p2.x - p1.x) * fraccion;
+        const yInterp = p1.y + (p2.y - p1.y) * fraccion;
+
         const imgParaDibujar = (pos === 0) ? this.imgBusAbierto : this.imgBusCerrado;
 
-        if (imgParaDibujar.complete && p) {
+        if (imgParaDibujar.complete) {
             const bounce = pausado ? 0 : Math.sin(Date.now() / 200) * 5;
-            const sigPunto = this.puntos[i + 1] || p;
-            const mirandoIzquierda = sigPunto.x < p.x;
+            const mirandoIzquierda = p2.x < p1.x;
 
             this.ctx.save();
+            // Usamos xInterp y yInterp para que el bus se desplace por el camino
             if (mirandoIzquierda) {
-                this.ctx.translate(p.x, p.y);
+                this.ctx.translate(xInterp, yInterp);
                 this.ctx.scale(-1, 1);
                 this.ctx.drawImage(imgParaDibujar, -40, -60 + bounce, 80, 80);
             } else {
-                this.ctx.drawImage(imgParaDibujar, p.x - 40, (p.y - 60) + bounce, 80, 80);
+                this.ctx.drawImage(imgParaDibujar, xInterp - 40, (yInterp - 60) + bounce, 80, 80);
             }
             this.ctx.restore();
         }
