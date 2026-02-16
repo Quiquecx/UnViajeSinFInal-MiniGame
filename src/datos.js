@@ -100,6 +100,7 @@ export const RETOS = {
             ],
             mensaje: "¡Muy bien! Ayudar al prójimo es parte del viaje con Jesús.",
             sticker: "❤️ Corazón",
+            imagen: "src/imgs/iconos L6 SOS.png"
             
         },
         {
@@ -110,6 +111,7 @@ export const RETOS = {
             ],
             mensaje: "¡Eso es fraternidad!",
             sticker: "🍞 Pan",
+            imagen: "src/imgs/iconos L6 SOS.png"
             
         }
     ],

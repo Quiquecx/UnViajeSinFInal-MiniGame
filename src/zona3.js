@@ -42,14 +42,14 @@ class TableroGrafico {
         this.imgBusCerrado.src = 'src/imgs/BusCerrado.png';
         
         this.puntos = [
-            {x: 720, y: 200}, {x: 674, y: 159}, {x: 682, y: 99},  {x: 420, y: 96},
-            {x: 367, y: 95},  {x: 311, y: 85},  {x: 248, y: 31},  {x: 203, y: 41},
-            {x: 104, y: 129}, {x: 139, y: 203}, {x: 153, y: 268}, {x: 60, y: 448},
-            {x: 114, y: 502}, {x: 183, y: 508}, {x: 381, y: 574}, {x: 425, y: 519},
-            {x: 454, y: 464}, {x: 659, y: 521}, {x: 717, y: 502}, {x: 848, y: 400},
-            {x: 844, y: 318}, {x: 794, y: 288}, {x: 732, y: 309}, {x: 675, y: 324},
-            {x: 625, y: 302}, {x: 596, y: 242}, {x: 559, y: 195}, {x: 506, y: 177},
-            {x: 448, y: 217}
+            {x: 802, y: 212}, {x: 723, y: 200}, {x: 675, y: 161}, {x: 671, y: 107},
+            {x: 524, y: 76},  {x: 420, y: 93},  {x: 363, y: 91},  {x: 313, y: 81},
+            {x: 258, y: 77},  {x: 207, y: 41},  {x: 107, y: 117}, {x: 135, y: 198},
+            {x: 95, y: 336},  {x: 63, y: 458},  {x: 106, y: 501}, {x: 275, y: 560},
+            {x: 380, y: 577}, {x: 426, y: 515}, {x: 459, y: 457}, {x: 659, y: 521},
+            {x: 719, y: 496}, {x: 842, y: 387}, {x: 843, y: 315}, {x: 793, y: 289},
+            {x: 738, y: 309}, {x: 679, y: 323}, {x: 619, y: 299}, {x: 595, y: 246},
+            {x: 563, y: 200}, {x: 507, y: 175}, {x: 408, y: 254}
         ];
     }
 
@@ -113,6 +113,20 @@ function obtenerItemNoRepetido(categoria, listaOriginal) {
    3. INICIALIZACIÓN Y EVENTOS
    ========================================================== */
 export function iniciarRutaGranViaje() {
+
+    // --- HERRAMIENTA DE COORDENADAS (Solo para desarrollo) ---
+    const canvas = document.getElementById('tablero-canvas');
+    canvas.onclick = (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = Math.round(e.clientX - rect.left);
+        const y = Math.round(e.clientY - rect.top);
+        
+        // Esto aparecerá en la consola (F12)
+        console.log(`{x: ${x}, y: ${y}},`); 
+        
+        // Opcional: mostrarlo en el mensaje del juego para verlo rápido
+        mostrarMensaje(`Coordenadas: x: ${x}, y: ${y}`);
+    };
     motor = new TableroGrafico('tablero-canvas');
     reproducirSonido('intro');
 
